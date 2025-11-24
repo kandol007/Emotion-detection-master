@@ -23,7 +23,6 @@ Thumbs.db
 .idea/
 
 # Data / models (do not commit)
-*.h5
 *.hdf5
 *.pb
 *.tflite

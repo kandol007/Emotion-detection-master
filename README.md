@@ -2,8 +2,6 @@
 
 A real-time facial emotion detection application using Deep Learning, FastAPI, and Next.js.
 
-![Project Banner](https://via.placeholder.com/1200x400?text=Emotion+AI+Project)
-
 ## 🚀 Features
 
 - **Real-time Emotion Detection**: Detects emotions from your webcam feed instantly.
