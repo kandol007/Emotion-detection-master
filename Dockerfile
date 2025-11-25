@@ -1,35 +1,31 @@
-# Dockerfile - Python 3.11 (slim) tuned for TF / FastAPI
-FROM python:3.11-slim
+# Dockerfile — base on official TF image (CPU) to avoid tensorflow-intel issues
+FROM tensorflow/tensorflow:2.15.0
 
-# Install system packages required by some ML packages
-# Keep the list minimal and use packages available on Debian slim
+# (Optional) install system tools needed for other deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    gcc \
-    g++ \
-    git \
-    curl \
-    ca-certificates \
-    libsndfile1 \
-    libopenblas-dev \
-    liblapack-dev \
-    pkg-config \
+    build-essential git curl ca-certificates pkg-config libsndfile1 libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy only requirements first for better layer caching
+# Copy requirements but *skip* tensorflow packages to avoid reinstalling TF
+# (we'll still install the rest)
 COPY requirements.txt /app/requirements.txt
 
-# Upgrade pip & tooling then install wheel deps
+# Remove tensorflow lines at install time so pip doesn't try to reinstall
+RUN python - <<'PY'\n\
+    from pathlib import Path\n\
+    p = Path('/app/requirements.txt')\n\
+    lines = [l for l in p.read_text().splitlines() if 'tensorflow' not in l.lower()]\n\
+    p.write_text('\\n'.join(lines) + '\\n')\n\
+    PY
+
 RUN python -m pip install --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Copy application code
+# Copy app code
 COPY . /app
 
-# Expose port (Render provides $PORT at runtime)
 EXPOSE 8000
 
-# Start command uses $PORT if set
 CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
