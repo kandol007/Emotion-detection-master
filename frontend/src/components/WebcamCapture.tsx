@@ -108,7 +108,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ onEmotionDetected }) => {
         formData.append('file', imageBlob, 'capture.jpg');
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://emotion-detection-master-pflo.onrender.com';
             const response = await axios.post(`${apiUrl}/predict`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',

@@ -6,9 +6,15 @@ import uvicorn
 app = FastAPI(title="Emotion Detection API")
 
 # Allow CORS for frontend
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://emotion-detection-master.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify the frontend URL
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
