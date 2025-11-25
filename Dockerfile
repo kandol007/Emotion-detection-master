@@ -21,8 +21,14 @@ COPY requirements.txt /app/requirements.txt
 # Remove any tensorflow-related lines from requirements so we don't attempt to reinstall TF
 RUN sed -i '/tensorflow/Id' /app/requirements.txt || true
 
-# Upgrade pip/tooling and install remaining requirements
+# Upgrade pip/tooling
 RUN python -m pip install --upgrade pip setuptools wheel
+
+# Install a numpy version compatible with the base TF image (tensorflow-cpu 2.15 requires numpy <2.0,>=1.23.5)
+# Installing it first avoids pip's resolver picking an incompatible numpy later.
+RUN python -m pip install --no-cache-dir 'numpy==1.24.4'
+
+# Install remaining requirements
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy application code
@@ -31,9 +37,9 @@ COPY . /app
 # Expose port; Render provides $PORT at runtime
 EXPOSE 8000
 
-# Simple healthcheck (requires curl, which we installed above)
+# Simple healthcheck (uses shell form so env expansion works; checks the same port the server runs on)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8000/ || exit 1
+    CMD sh -c 'curl -f "http://localhost:${PORT:-8000}/" || exit 1'
 
-# Start Uvicorn (uses $PORT if set)
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "${PORT:-8000}"]
+# Start Uvicorn (shell form so ${PORT:-8000} is expanded by /bin/sh at runtime)
+CMD uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}
