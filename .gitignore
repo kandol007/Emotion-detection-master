@@ -1,15 +1,15 @@
-# create .gitignore
-@"
-# Virtual env
+# Python virtual environments
+.venv/
 venv/
-.env
 
-# Python
+# Environment files
+.env
+frontend/.env.local
+
+# Python cache/build
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Byte-compiled / distribution
 build/
 dist/
 *.egg-info/
@@ -18,12 +18,13 @@ dist/
 .DS_Store
 Thumbs.db
 
-# IDEs
+# IDE
 .vscode/
 .idea/
 
-# Data / models (do not commit)
+# ML/data artifacts
 *.hdf5
+!backend/model_mini_xception.hdf5
 *.pb
 *.tflite
 models/
@@ -32,7 +33,7 @@ data/
 
 # Node
 node_modules/
-"@ > .gitignore
+frontend/node_modules/
 
-git add .gitignore
-git commit -m "Add .gitignore (exclude venv, models, data)"
+# Setup/download artifacts
+.wheelhouse/
